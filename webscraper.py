@@ -13,7 +13,7 @@ import json
 import os
 from datetime import datetime
 import re
-from groq import Groq
+# from groq import Groq
 from dotenv import load_dotenv
 import csv
 
@@ -22,7 +22,7 @@ class AirbnbScraper:
         self.update_status = update_status or print  # Use provided update function or fallback to print
         self.setup_driver()
         self.results = []
-        self.setup_groq()
+        # self.setup_groq()
         
         # Create run-specific directory
         self.run_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -64,10 +64,10 @@ class AirbnbScraper:
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
         # self.driver = webdriver.Chrome(options=chrome_options)
         
-    def setup_groq(self):
-        """Set up the Groq client"""
-        load_dotenv()
-        self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+    # def setup_groq(self):
+    #     """Set up the Groq client"""
+    #     load_dotenv()
+    #     self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         
     def handle_popups(self):
         """Handle any popups that might appear"""
@@ -94,76 +94,76 @@ class AirbnbScraper:
         except:
             return False
 
-    def check_amenities_with_groq(self, amenities_text):
-        """Use Groq to analyze amenities text"""
-        target_amenities = ["TV", "Pool", "Jacuzzi", "Billiards/Pool Table", 
-                          "Large Yard", "Balcony", "Laundry", "Home Gym"]
+    # def check_amenities_with_groq(self, amenities_text):
+        # """Use Groq to analyze amenities text"""
+        # target_amenities = ["TV", "Pool", "Jacuzzi", "Billiards/Pool Table", 
+        #                   "Large Yard", "Balcony", "Laundry", "Home Gym"]
         
-        prompt = f"""
-        Given the following amenities text from an Airbnb listing:
-        {amenities_text}
+        # prompt = f"""
+        # Given the following amenities text from an Airbnb listing:
+        # {amenities_text}
         
-        Please analyze if the following amenities are present (exactly or similar terms):
-        {', '.join(target_amenities)}
+        # Please analyze if the following amenities are present (exactly or similar terms):
+        # {', '.join(target_amenities)}
         
-        Return ONLY a JSON object in this exact format, with no additional text:
-        {{
-            "TV": true/false,
-            "Pool": true/false,
-            "Jacuzzi": true/false,
-            "Billiards/Pool Table": true/false,
-            "Large Yard": true/false,
-            "Balcony": true/false,
-            "Laundry": true/false,
-            "Home Gym": true/false
-        }}
+        # Return ONLY a JSON object in this exact format, with no additional text:
+        # {{
+        #     "TV": true/false,
+        #     "Pool": true/false,
+        #     "Jacuzzi": true/false,
+        #     "Billiards/Pool Table": true/false,
+        #     "Large Yard": true/false,
+        #     "Balcony": true/false,
+        #     "Laundry": true/false,
+        #     "Home Gym": true/false
+        # }}
         
-        Consider similar terms (e.g., "Swimming pool" for "Pool", "Hot tub" for "Jacuzzi", etc.)
-        """
+        # Consider similar terms (e.g., "Swimming pool" for "Pool", "Hot tub" for "Jacuzzi", etc.)
+        # """
         
-        try:
-            chat_completion = self.groq_client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a JSON-only assistant. You must respond with valid JSON objects only, no additional text or explanation."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                model="llama-3.3-70b-versatile",
-            )
+        # try:
+        #     chat_completion = self.groq_client.chat.completions.create(
+        #         messages=[
+        #             {
+        #                 "role": "system",
+        #                 "content": "You are a JSON-only assistant. You must respond with valid JSON objects only, no additional text or explanation."
+        #             },
+        #             {
+        #                 "role": "user",
+        #                 "content": prompt
+        #             }
+        #         ],
+        #         model="llama-3.3-70b-versatile",
+        #     )
             
-            response = chat_completion.choices[0].message.content.strip()
-            self.update_status(f"\nGroq response: {response}")  # Debug print
+        #     response = chat_completion.choices[0].message.content.strip()
+        #     self.update_status(f"\nGroq response: {response}")  # Debug print
             
-            # Try to clean the response if it's not pure JSON
-            try:
-                return json.loads(response)
-            except:
-                # Try to extract JSON if there's additional text
-                import re
-                json_match = re.search(r'\{.*\}', response, re.DOTALL)
-                if json_match:
-                    return json.loads(json_match.group())
-                raise Exception("Could not extract valid JSON from response")
+        #     # Try to clean the response if it's not pure JSON
+        #     try:
+        #         return json.loads(response)
+        #     except:
+        #         # Try to extract JSON if there's additional text
+        #         import re
+        #         json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        #         if json_match:
+        #             return json.loads(json_match.group())
+        #         raise Exception("Could not extract valid JSON from response")
             
-        except Exception as e:
-            self.update_status(f"Error analyzing amenities with Groq: {str(e)}")
-            # Return a default structure instead of None
-            return {
-                "TV": False,
-                "Pool": False,
-                "Jacuzzi": False,
-                "Billiards/Pool Table": False,
-                "Large Yard": False,
-                "Balcony": False,
-                "Laundry": False,
-                "Home Gym": False,
-                "error": str(e)
-            }
+        # except Exception as e:
+        #     self.update_status(f"Error analyzing amenities with Groq: {str(e)}")
+        #     # Return a default structure instead of None
+        #     return {
+        #         "TV": False,
+        #         "Pool": False,
+        #         "Jacuzzi": False,
+        #         "Billiards/Pool Table": False,
+        #         "Large Yard": False,
+        #         "Balcony": False,
+        #         "Laundry": False,
+        #         "Home Gym": False,
+        #         "error": str(e)
+        #     }
 
     def get_amenities_text(self):
         """Get amenities text from modal or fall back to page text"""
@@ -315,51 +315,51 @@ class AirbnbScraper:
             "evidence": "; ".join(evidence) if evidence else "No historical evidence found"
         }
 
-    def extract_missing_details(self, full_content, missing_fields):
-        """Use Groq to extract missing details from the full page content"""
-        prompt = f"""
-        Given the following Airbnb listing content:
-        {full_content}
+    # def extract_missing_details(self, full_content, missing_fields):
+    #     """Use Groq to extract missing details from the full page content"""
+    #     prompt = f"""
+    #     Given the following Airbnb listing content:
+    #     {full_content}
         
-        Extract these missing fields: {', '.join(missing_fields)}
-        Return ONLY a JSON object with the found values, like:
-        {{
-            "field_name": "extracted value"
-        }}
-        """
+    #     Extract these missing fields: {', '.join(missing_fields)}
+    #     Return ONLY a JSON object with the found values, like:
+    #     {{
+    #         "field_name": "extracted value"
+    #     }}
+    #     """
         
-        try:
-            chat_completion = self.groq_client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a JSON-only assistant. Respond with valid JSON only."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                model="llama-3.3-70b-versatile",
-            )
+    #     try:
+    #         chat_completion = self.groq_client.chat.completions.create(
+    #             messages=[
+    #                 {
+    #                     "role": "system",
+    #                     "content": "You are a JSON-only assistant. Respond with valid JSON only."
+    #                 },
+    #                 {
+    #                     "role": "user",
+    #                     "content": prompt
+    #                 }
+    #             ],
+    #             model="llama-3.3-70b-versatile",
+    #         )
             
-            response = chat_completion.choices[0].message.content.strip()
-            self.update_status(f"\nGroq missing details response: {response}")  # Debug print
+    #         response = chat_completion.choices[0].message.content.strip()
+    #         self.update_status(f"\nGroq missing details response: {response}")  # Debug print
             
-            # Try to clean the response if it's not pure JSON
-            try:
-                return json.loads(response)
-            except:
-                # Try to extract JSON if there's additional text
-                import re
-                json_match = re.search(r'\{.*\}', response, re.DOTALL)
-                if json_match:
-                    return json.loads(json_match.group())
-                raise Exception("Could not extract valid JSON from response")
+    #         # Try to clean the response if it's not pure JSON
+    #         try:
+    #             return json.loads(response)
+    #         except:
+    #             # Try to extract JSON if there's additional text
+    #             import re
+    #             json_match = re.search(r'\{.*\}', response, re.DOTALL)
+    #             if json_match:
+    #                 return json.loads(json_match.group())
+    #             raise Exception("Could not extract valid JSON from response")
             
-        except Exception as e:
-            self.update_status(f"Error extracting missing details: {str(e)}")
-            return {}
+    #     except Exception as e:
+    #         self.update_status(f"Error extracting missing details: {str(e)}")
+    #         return {}
 
     def get_next_page_link(self):
         """Find and return the next page link if available"""
@@ -706,11 +706,11 @@ class AirbnbScraper:
                             missing_fields = [k for k, v in listing_details.items() if v == "N/A"]
                             if missing_fields:
                                 self.update_status(f"\nAttempting to extract missing fields: {missing_fields}")
-                                additional_details = self.extract_missing_details(full_content, missing_fields)
-                                for field, value in additional_details.items():
-                                    if field in missing_fields and value:
-                                        listing_details[field] = value
-                                        self.update_status(f"Updated {field} to: {value}")
+                                # additional_details = self.extract_missing_details(full_content, missing_fields)
+                                # for field, value in additional_details.items():
+                                #     if field in missing_fields and value:
+                                #         listing_details[field] = value
+                                #         self.update_status(f"Updated {field} to: {value}")
 
                             all_listings.append(listing_details)
                             self.update_output_files(listing_details)  # Update files in real-time

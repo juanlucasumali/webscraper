@@ -100,4 +100,3 @@ wheel==0.43.0
 wsproto==1.2.0
 yarl==1.9.4
 python-dotenv 
-groq
